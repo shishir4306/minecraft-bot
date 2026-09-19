@@ -11,10 +11,10 @@ function createMyBot() {
   console.log("Connecting shishir to Aternos...");
 
   const bot = mineflayer.createBot({
-    host: 'louvar.aternos.host', // Your exact Dyn IP
-    port: 26962,                // Your exact Port[cite: 1]
+    host: 'louvar.aternos.host', // Your Dyn IP[cite: 1]
+    port: 26962,                // Your Port[cite: 1]
     username: 'shishir',        // Bot username
-    version: false,             // DISABLES automatic version check (prevents hanging)
+    version: '1.20.4',          // Minecraft protocol version
     checkTimeoutInterval: 60 * 1000
   });
 
@@ -25,7 +25,6 @@ function createMyBot() {
   bot.on('spawn', () => {
     console.log(" Bot spawned into the world!");
 
-    // Simple AI loop
     setInterval(() => {
       // 1. Attack hostile mobs within 5 blocks
       const mob = bot.nearestEntity(e => 
@@ -58,10 +57,18 @@ function createMyBot() {
     }, 500);
   });
 
-  bot.on('kicked', (reason) => console.log(" KICKED:", JSON.stringify(reason)));
-  bot.on('error', (err) => console.log(" ERROR:", err.message));
-  bot.on('end', () => {
-    console.log(" DISCONNECTED. Reconnecting in 20s...");
+  // DETAILED ERROR LOGGING
+  bot.on('kicked', (reason) => {
+    console.log(" KICKED REASON:", typeof reason === 'object' ? JSON.stringify(reason) : reason);
+  });
+
+  bot.on('error', (err) => {
+    console.log(" ERROR DETAILS:", err);
+  });
+
+  bot.on('end', (reason) => {
+    console.log(" DISCONNECTED REASON:", reason);
+    console.log("Reconnecting in 20s...");
     setTimeout(createMyBot, 20000);
   });
 }
