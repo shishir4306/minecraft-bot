@@ -11,12 +11,12 @@ function createMyBot() {
   console.log("Connecting shishir_bot to ling.aternos.host:26962...");
 
   const bot = mineflayer.createBot({
-    host: 'ling.aternos.host',      // Exact Dyn IP from your Connect modal
-    port: 26962,                   // Port number
-    username: 'shishir_bot',        // Distinct bot username
+    host: 'ling.aternos.host',      // Exact Dyn IP[cite: 1, 3]
+    port: 26962,                   // Port number[cite: 1, 3]
+    username: 'shishir_bot',        // Distinct bot username[cite: 3]
     auth: 'offline',               // Cracked / Offline mode support
-    version: '1.20.4',             // Protocol matching PaperMC 26.1.1
-    fakeHost: 'shafi.aternos.me',  // Primary Aternos address for proxy header passing
+    version: '1.20.6',             // Updated protocol to match Paper 26.1.1
+    fakeHost: 'shafi.aternos.me',  // Primary Aternos address[cite: 1, 2]
     clientBrand: 'vanilla',        // Spoof vanilla client metadata
     skipValidation: true,
     checkTimeoutInterval: 60 * 1000,
