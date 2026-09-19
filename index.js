@@ -8,14 +8,15 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Initiating connection to Aternos...");
+  console.log("Connecting shishir_bot directly...");
 
   const bot = mineflayer.createBot({
-    host: 'louvar.aternos.host', // Your exact Dyn IP
-    port: 26962,                // Your exact Port
-    username: 'shishir_bot',    // Unique bot username
-    // Note: Do NOT set fixed version string; let Mineflayer auto-negotiate protocol
-    checkTimeoutInterval: 60 * 1000
+    host: 'louvar.aternos.host',
+    port: 26962,
+    username: 'shishir_bot',
+    version: '1.20.4',
+    skipValidation: true,       // Bypasses proxy handshake hangs
+    hideErrors: false
   });
 
   bot.on('login', () => {
@@ -26,7 +27,7 @@ function createMyBot() {
     console.log(" Bot spawned into the world!");
 
     setInterval(() => {
-      // 1. Attack hostile mobs within 5 blocks
+      // Attack nearby hostile mobs
       const mob = bot.nearestEntity(e => 
         (e.type === 'hostile' || (e.name && ['zombie', 'skeleton', 'spider', 'creeper'].includes(e.name.toLowerCase()))) &&
         bot.entity.position.distanceTo(e.position) < 5
@@ -38,7 +39,7 @@ function createMyBot() {
         return;
       }
 
-      // 2. Locate nearest player
+      // Follow active player
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
@@ -57,18 +58,11 @@ function createMyBot() {
     }, 500);
   });
 
-  bot.on('kicked', (reason) => {
-    console.log(" KICKED REASON:", typeof reason === 'object' ? JSON.stringify(reason) : reason);
-  });
-
-  bot.on('error', (err) => {
-    console.log(" ERROR DETAILS:", err.message);
-  });
-
-  bot.on('end', (reason) => {
-    console.log(" DISCONNECTED REASON:", reason);
-    console.log("Reconnecting in 20s...");
-    setTimeout(createMyBot, 20000);
+  bot.on('kicked', (reason) => console.log(" KICKED:", JSON.stringify(reason)));
+  bot.on('error', (err) => console.log(" ERROR:", err.message));
+  bot.on('end', () => {
+    console.log(" DISCONNECTED. Reconnecting in 15s...");
+    setTimeout(createMyBot, 15000);
   });
 }
 
