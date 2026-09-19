@@ -1,34 +1,34 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// 1. Keep-Alive Web Server for Render & UptimeRobot
+// Keep-Alive Web Server for Render & UptimeRobot
 http.createServer((req, res) => {
   res.write("Mineflayer Bot Diagnostic Server is Live!");
   res.end();
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Connecting to Aternos server...");
+  console.log("Connecting to Aternos server (louvar.aternos.host:26962)...");
 
   const bot = mineflayer.createBot({
-    host: 'shafi.aternos.me', // Your Aternos Server Address
-    port: 26962,              // Your exact Port
-    username: 'CompanionBot', // In-game name for the bot
-    //version: '26.1.1'         // Matches your exact PaperMC version
+    host: 'louvar.aternos.host', // Exact Dyn IP from Aternos Connect popup
+    port: 26962,                // Exact Port
+    username: 'CompanionBot',   // Bot username
+    checkTimeoutInterval: 60 * 1000 // Prevents premature timeout drops
   });
 
-  // Connection events
+  // Successful connection events
   bot.on('login', () => {
-    console.log(` SUCCESS: ${bot.username} logged in successfully!`);
+    console.log(` SUCCESS: ${bot.username} logged in!`);
   });
 
   bot.on('spawn', () => {
     console.log(" Bot spawned into the world!");
   });
 
-  // Error & Disconnect Diagnostics
+  // Detailed Diagnostics for Render Logs
   bot.on('kicked', (reason) => {
-    console.log(" KICKED FROM SERVER REASON:", JSON.stringify(reason));
+    console.log(" KICKED FROM SERVER:", JSON.stringify(reason));
   });
 
   bot.on('error', (err) => {
@@ -37,8 +37,8 @@ function createMyBot() {
 
   bot.on('end', (reason) => {
     console.log(" DISCONNECTED REASON:", reason);
-    console.log("Reconnecting in 30 seconds...");
-    setTimeout(createMyBot, 30000); // Prevents rapid crash loops on Render
+    console.log("Reconnecting in 20 seconds...");
+    setTimeout(createMyBot, 20000);
   });
 }
 
