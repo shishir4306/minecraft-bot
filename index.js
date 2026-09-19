@@ -1,80 +1,158 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// HTTP Keep-Alive Server for Render
+// Render web service keep-alive endpoint
+const PORT = process.env.PORT || 8080;
+
 http.createServer((req, res) => {
-  res.write("Companion Bot is Online!");
-  res.end();
-}).listen(process.env.PORT || 8080);
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Companion Bot is Online!');
+}).listen(PORT, () => {
+  console.log(`HTTP server listening on port ${PORT}`);
+});
+
+let reconnectTimer = null;
 
 function createMyBot() {
-  console.log("Connecting shishir_bot to ling.aternos.host:26962...");
+  console.log('----------------------------------------');
+  console.log('Connecting to Minecraft server...');
+  console.log('Host: ling.aternos.host');
+  console.log('Port: 26962');
+  console.log('Username: shishir_bot');
+  console.log('----------------------------------------');
 
   const bot = mineflayer.createBot({
-    host: 'ling.aternos.host',      // Exact Dyn IP[cite: 1, 3]
-    port: 26962,                   // Port number[cite: 1, 3]
-    username: 'shishir_bot',        // Distinct bot username[cite: 3]
-    auth: 'offline',               // Cracked / Offline mode support
-    version: '1.20.6',             // Updated protocol to match Paper 26.1.1
-    fakeHost: 'shafi.aternos.me',  // Primary Aternos address[cite: 1, 2]
-    clientBrand: 'vanilla',        // Spoof vanilla client metadata
-    skipValidation: true,
-    checkTimeoutInterval: 60 * 1000,
+    host: 'ling.aternos.host',
+    port: 26962,
+
+    username: 'shishir_bot',
+
+    // Only use offline if the Minecraft server itself
+    // is configured for offline/cracked players.
+    auth: 'offline',
+
+    // IMPORTANT:
+    // This must match the actual Minecraft server version.
+    version: '1.20.6',
+
+    // Do NOT use fakeHost unless your server/proxy requires it.
+    checkTimeoutInterval: 60000,
     connectTimeout: 30000
   });
 
-  bot.on('login', () => {
-    console.log(` SUCCESS: ${bot.username} logged into the server!`);
+  bot.once('login', () => {
+    console.log('SUCCESS: Bot logged into the Minecraft server.');
   });
 
-  bot.on('spawn', () => {
-    console.log(" Bot spawned into the world!");
+  bot.once('spawn', () => {
+    console.log('SUCCESS: Bot spawned into the world.');
 
-    setInterval(() => {
-      // 1. Combat logic: Attack nearby hostile mobs
-      const mob = bot.nearestEntity(e => 
-        (e.type === 'hostile' || (e.name && ['zombie', 'skeleton', 'spider', 'creeper'].includes(e.name.toLowerCase()))) &&
-        bot.entity.position.distanceTo(e.position) < 5
-      );
-
-      if (mob) {
-        bot.lookAt(mob.position.offset(0, mob.height, 0));
-        bot.attack(mob);
-        return;
-      }
-
-      // 2. Movement logic: Follow nearest active player
-      const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
-      if (player) {
-        const dist = bot.entity.position.distanceTo(player.position);
-        bot.lookAt(player.position.offset(0, player.height, 0));
-
-        if (dist > 3) {
-          bot.setControlState('forward', true);
-          bot.setControlState('sprint', dist > 6);
-        } else {
-          bot.setControlState('forward', false);
-          bot.setControlState('sprint', false);
-        }
-      } else {
-        bot.clearControlStates();
-      }
-    }, 500);
+    startBotLogic(bot);
   });
 
   bot.on('kicked', (reason) => {
-    console.log(" KICKED REASON:", typeof reason === 'object' ? JSON.stringify(reason) : reason);
+    console.log('KICKED:');
+
+    if (typeof reason === 'object') {
+      console.log(JSON.stringify(reason, null, 2));
+    } else {
+      console.log(reason);
+    }
   });
 
   bot.on('error', (err) => {
-    console.log(" ERROR DETAILS:", err.message);
+    console.log('BOT ERROR:', err);
   });
 
   bot.on('end', (reason) => {
-    console.log(" DISCONNECTED REASON:", reason);
-    console.log("Reconnecting in 15 seconds...");
-    setTimeout(createMyBot, 15000);
+    console.log('DISCONNECTED:', reason);
+
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+    }
+
+    reconnectTimer = setTimeout(() => {
+      console.log('Attempting to reconnect...');
+      createMyBot();
+    }, 15000);
   });
+}
+
+function startBotLogic(bot) {
+  setInterval(async () => {
+    if (!bot.entity || !bot.entity.position) {
+      return;
+    }
+
+    // Find nearby hostile mob
+    const mob = bot.nearestEntity(entity => {
+      if (!entity.position) return false;
+
+      const hostile =
+        entity.type === 'hostile' ||
+        (
+          entity.name &&
+          ['zombie', 'skeleton', 'spider', 'creeper'].includes(
+            entity.name.toLowerCase()
+          )
+        );
+
+      return (
+        hostile &&
+        bot.entity.position.distanceTo(entity.position) < 5
+      );
+    });
+
+    if (mob) {
+      try {
+        await bot.lookAt(
+          mob.position.offset(0, mob.height || 1, 0),
+          true
+        );
+
+        bot.attack(mob);
+      } catch (err) {
+        console.log('Combat error:', err.message);
+      }
+
+      return;
+    }
+
+    // Find nearest player
+    const player = bot.nearestEntity(entity => {
+      return (
+        entity.type === 'player' &&
+        entity.username !== bot.username &&
+        entity.position
+      );
+    });
+
+    if (player) {
+      const distance = bot.entity.position.distanceTo(
+        player.position
+      );
+
+      try {
+        await bot.lookAt(
+          player.position.offset(0, player.height || 1, 0),
+          true
+        );
+      } catch (err) {
+        // Ignore occasional look errors
+      }
+
+      if (distance > 3) {
+        bot.setControlState('forward', true);
+        bot.setControlState('sprint', distance > 6);
+      } else {
+        bot.setControlState('forward', false);
+        bot.setControlState('sprint', false);
+      }
+    } else {
+      bot.clearControlStates();
+    }
+
+  }, 500);
 }
 
 createMyBot();
