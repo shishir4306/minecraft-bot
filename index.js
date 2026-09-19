@@ -8,18 +8,21 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Connecting shishir_bot via raw socket...");
+  console.log("Connecting shishir_bot with spoofed client headers...");
 
   const bot = mineflayer.createBot({
     host: 'louvar.aternos.host',
     port: 26962,
     username: 'shishir_bot',
     auth: 'offline',
-    // Omit version string to let minecraft-protocol ping raw packet headers
+    
+    // CRITICAL: Bypasses Aternos Proxy Firewall
+    fakeHost: 'louvar.aternos.host', // Forces proper SNI/Host header
+    clientBrand: 'vanilla',         // Spoofs official launcher metadata
     skipValidation: true,
-    checkTimeoutInterval: 120 * 1000,
-    connectTimeout: 30000,
-    hideErrors: false
+    
+    checkTimeoutInterval: 60 * 1000,
+    connectTimeout: 30000
   });
 
   bot.on('login', () => {
@@ -42,7 +45,7 @@ function createMyBot() {
         return;
       }
 
-      // 2. Locate and follow active player
+      // 2. Follow active player
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
