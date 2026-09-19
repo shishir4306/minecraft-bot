@@ -8,12 +8,12 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Connecting shishir to Aternos...");
+  console.log("Connecting CompanionBot to Aternos...");
 
   const bot = mineflayer.createBot({
     host: 'louvar.aternos.host', // Your Dyn IP[cite: 1]
     port: 26962,                // Your Port[cite: 1]
-    username: 'shishir',        // Bot username
+    username: 'shishir_bot',    // UNIQUE BOT NAME (Different from your player name)
     version: '1.20.4',          // Minecraft protocol version
     checkTimeoutInterval: 60 * 1000
   });
@@ -38,7 +38,7 @@ function createMyBot() {
         return;
       }
 
-      // 2. Locate nearest player
+      // 2. Locate nearest player (your main character or your brother)
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
@@ -57,13 +57,12 @@ function createMyBot() {
     }, 500);
   });
 
-  // DETAILED ERROR LOGGING
   bot.on('kicked', (reason) => {
     console.log(" KICKED REASON:", typeof reason === 'object' ? JSON.stringify(reason) : reason);
   });
 
   bot.on('error', (err) => {
-    console.log(" ERROR DETAILS:", err);
+    console.log(" ERROR DETAILS:", err.message);
   });
 
   bot.on('end', (reason) => {
