@@ -11,10 +11,11 @@ function createMyBot() {
   console.log("Connecting to Aternos server as shishir...");
 
   const bot = mineflayer.createBot({
-    host: 'louvar.aternos.host', // Exact Dyn IP[cite: 1]
-    port: 26962,                // Exact Port[cite: 1]
-    username: 'shishir',        // Bot username
-    version: '26.1.1',          // Server version
+    host: 'louvar.aternos.host', //[cite: 1]
+    port: 26962,                //[cite: 1]
+    username: 'shishir',
+    version: '1.20.4',          // Base protocol version for 1.20+ PaperMC
+    skipValidation: true,       // Bypasses PaperMC version-check freezing
     checkTimeoutInterval: 60 * 1000
   });
 
@@ -25,9 +26,9 @@ function createMyBot() {
   bot.on('spawn', () => {
     console.log(" Bot spawned into the world!");
 
-    // Native AI loop running every 500ms
+    // Simple AI loop: Follow nearby player and attack hostiles
     setInterval(() => {
-      // 1. Look for nearby hostile mobs within 5 blocks
+      // 1. Attack hostile mobs within 5 blocks
       const mob = bot.nearestEntity(e => 
         (e.type === 'hostile' || (e.name && ['zombie', 'skeleton', 'spider', 'creeper'].includes(e.name.toLowerCase()))) &&
         bot.entity.position.distanceTo(e.position) < 5
@@ -39,24 +40,21 @@ function createMyBot() {
         return;
       }
 
-      // 2. Locate nearest player (your brother)
+      // 2. Locate nearest player
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
         
-        // Look at the player
         bot.lookAt(player.position.offset(0, player.height, 0));
 
-        // Walk toward player if more than 3 blocks away
         if (dist > 3) {
           bot.setControlState('forward', true);
-          bot.setControlState('sprint', dist > 6); // Sprint if far away
+          bot.setControlState('sprint', dist > 6);
         } else {
           bot.setControlState('forward', false);
           bot.setControlState('sprint', false);
         }
       } else {
-        // Stop moving if no player is nearby
         bot.clearControlStates();
       }
     }, 500);
