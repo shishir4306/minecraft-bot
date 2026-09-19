@@ -14,7 +14,7 @@ function createMyBot() {
     host: 'shafi.aternos.me', // Your Aternos Server Address
     port: 26962,              // Your exact Port
     username: 'CompanionBot', // In-game name for the bot
-    version: '26.1.1'         // Matches your exact PaperMC version
+    //version: '26.1.1'         // Matches your exact PaperMC version
   });
 
   // Connection events
