@@ -14,7 +14,7 @@ function createMyBot() {
     host: 'louvar.aternos.host', // Your exact Dyn IP
     port: 26962,                // Your exact Port
     username: 'CompanionBot',   // In-game name for the bot
-    version: '1.20.4',          // Base protocol version for PaperMC
+    version: '26.1.1',          // Matches your exact Minecraft server version
     checkTimeoutInterval: 60 * 1000
   });
 
