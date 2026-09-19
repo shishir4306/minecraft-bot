@@ -22,7 +22,7 @@ function createMyBot() {
     checkTimeoutInterval: 60 * 1000
   });
 
-  // Load movement and combat plugins
+  // Load plugins
   bot.loadPlugin(pathfinder);
   bot.loadPlugin(pvp);
 
@@ -36,23 +36,22 @@ function createMyBot() {
     const defaultMove = new Movements(bot);
     bot.pathfinder.setMovements(defaultMove);
 
-    // Loop: Automatically follow player and attack monsters
+    // Loop: Automatically follow player and attack monsters cleanly
     setInterval(() => {
-      // 1. Look for nearest hostile monster within 8 blocks
+      // Look for hostile mobs using entity.name (fixes deprecation warning)
       const monster = bot.nearestEntity(entity => {
-        return entity.type === 'mob' && 
-               entity.mobType && 
-               ['Zombie', 'Skeleton', 'Spider', 'Creeper'].includes(entity.mobType) &&
+        return entity.type === 'hostile' || 
+               (entity.name && ['zombie', 'skeleton', 'spider', 'creeper'].includes(entity.name.toLowerCase())) &&
                bot.entity.position.distanceTo(entity.position) < 8;
       });
 
       if (monster) {
         bot.pvp.attack(monster); // Defend against monster
       } else {
-        // 2. Otherwise follow your brother (or any active player)
+        // Follow nearest real player
         const playerEntity = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
         if (playerEntity) {
-          bot.pathfinder.setGoal(new GoalFollow(playerEntity, 2), true); // Keep 2 blocks distance
+          bot.pathfinder.setGoal(new GoalFollow(playerEntity, 2), true); // Stay 2 blocks away
         }
       }
     }, 1000);
