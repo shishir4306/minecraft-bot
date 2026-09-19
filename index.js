@@ -8,15 +8,15 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Connecting to Aternos server as shishir...");
+  console.log("Attempting handshake with Aternos server...");
 
   const bot = mineflayer.createBot({
-    host: 'louvar.aternos.host', //[cite: 1]
-    port: 26962,                //[cite: 1]
+    host: 'shafi.aternos.me', // Main server address[cite: 2]
+    port: 26962,             // Server port[cite: 1, 2]
     username: 'shishir',
-    version: '1.20.4',          // Base protocol version for 1.20+ PaperMC
-    skipValidation: true,       // Bypasses PaperMC version-check freezing
-    checkTimeoutInterval: 60 * 1000
+    version: '1.20.4',       // Standard base protocol
+    auth: 'offline',         // Explicit offline mode for Cracked servers
+    checkTimeoutInterval: 90 * 1000
   });
 
   bot.on('login', () => {
@@ -26,7 +26,7 @@ function createMyBot() {
   bot.on('spawn', () => {
     console.log(" Bot spawned into the world!");
 
-    // Simple AI loop: Follow nearby player and attack hostiles
+    // Simple AI loop
     setInterval(() => {
       // 1. Attack hostile mobs within 5 blocks
       const mob = bot.nearestEntity(e => 
@@ -44,7 +44,6 @@ function createMyBot() {
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
-        
         bot.lookAt(player.position.offset(0, player.height, 0));
 
         if (dist > 3) {
