@@ -8,14 +8,15 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Initiating direct handshake with Aternos...");
+  console.log("Connecting shishir_bot to Paper 26.1.1...");
 
   const bot = mineflayer.createBot({
     host: 'louvar.aternos.host',
     port: 26962,
     username: 'shishir_bot',
     auth: 'offline',
-    version: false,             // Allows Mineflayer to negotiate protocol automatically
+    version: '26.1.1',          // Matches PaperMC 26.1 protocol scheme
+    skipValidation: true,       // Bypasses handshake ping hangs
     checkTimeoutInterval: 60 * 1000,
     connectTimeout: 30000
   });
