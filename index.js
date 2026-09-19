@@ -17,7 +17,7 @@ function createMyBot() {
     auth: 'offline',
     
     // CRITICAL: Bypasses Aternos Proxy Firewall
-    fakeHost: 'louvar.aternos.host', // Forces proper SNI/Host header
+    fakeHost: 'ling.aternos.host', // Forces proper SNI/Host header
     clientBrand: 'vanilla',         // Spoofs official launcher metadata
     skipValidation: true,
     
