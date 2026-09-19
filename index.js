@@ -8,15 +8,14 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Attempting handshake with Aternos server...");
+  console.log("Connecting shishir to Aternos...");
 
   const bot = mineflayer.createBot({
-    host: 'shafi.aternos.me', // Main server address[cite: 2]
-    port: 26962,             // Server port[cite: 1, 2]
-    username: 'shishir',
-    version: '1.20.4',       // Standard base protocol
-    auth: 'offline',         // Explicit offline mode for Cracked servers
-    checkTimeoutInterval: 90 * 1000
+    host: 'louvar.aternos.host', // Your exact Dyn IP
+    port: 26962,                // Your exact Port[cite: 1]
+    username: 'shishir',        // Bot username
+    version: false,             // DISABLES automatic version check (prevents hanging)
+    checkTimeoutInterval: 60 * 1000
   });
 
   bot.on('login', () => {
