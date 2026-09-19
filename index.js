@@ -9,10 +9,10 @@ http.createServer((req, res) => {
 
 // 2. Mineflayer Bot Configuration
 const bot = mineflayer.createBot({
-  host: 'YOUR_ATERNOS_SERVER.aternos.me', // Your Aternos Server IP
-  port: 25565,                             // Server Port
+  host: shafi.aternos.me, // Your Aternos Server IP
+  port: 26962,                             // Server Port
   username: 'CompanionBot',                 // Bot Name
-  version: '1.20.1'                        // Match your server's Minecraft version
+  version: '26.1.1'                        // Match your server's Minecraft version
 });
 
 bot.on('spawn', () => {
