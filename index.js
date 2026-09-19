@@ -1,20 +1,20 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// Keep-Alive Server for Render
+// Keep-Alive Web Server for Render
 http.createServer((req, res) => {
   res.write("Companion Bot is Online!");
   res.end();
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Connecting CompanionBot to Aternos...");
+  console.log("Initiating connection to Aternos...");
 
   const bot = mineflayer.createBot({
-    host: 'louvar.aternos.host', // Your Dyn IP[cite: 1]
-    port: 26962,                // Your Port[cite: 1]
-    username: 'shishir_bot',    // UNIQUE BOT NAME (Different from your player name)
-    version: '1.20.4',          // Minecraft protocol version
+    host: 'louvar.aternos.host', // Your exact Dyn IP
+    port: 26962,                // Your exact Port
+    username: 'shishir_bot',    // Unique bot username
+    // Note: Do NOT set fixed version string; let Mineflayer auto-negotiate protocol
     checkTimeoutInterval: 60 * 1000
   });
 
@@ -38,7 +38,7 @@ function createMyBot() {
         return;
       }
 
-      // 2. Locate nearest player (your main character or your brother)
+      // 2. Locate nearest player
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
