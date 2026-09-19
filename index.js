@@ -8,15 +8,16 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 8080);
 
 function createMyBot() {
-  console.log("Initiating network connection for shishir_bot...");
+  console.log("Initiating direct handshake with Aternos...");
 
   const bot = mineflayer.createBot({
     host: 'louvar.aternos.host',
     port: 26962,
     username: 'shishir_bot',
     auth: 'offline',
-    checkTimeoutInterval: 120 * 1000,
-    connectTimeout: 45000
+    version: false,             // Allows Mineflayer to negotiate protocol automatically
+    checkTimeoutInterval: 60 * 1000,
+    connectTimeout: 30000
   });
 
   bot.on('login', () => {
@@ -39,7 +40,7 @@ function createMyBot() {
         return;
       }
 
-      // 2. Follow active player
+      // 2. Locate and follow active player
       const player = bot.nearestEntity(e => e.type === 'player' && e.username !== bot.username);
       if (player) {
         const dist = bot.entity.position.distanceTo(player.position);
